@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulasi SHB Biologi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          animation: { 'fade-in-up': 'fadeInUp 0.5s ease-out' },
+          keyframes: {
+            fadeInUp: {
+              '0%': { opacity: '0', transform: 'translateY(20px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' }
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen">
+
+  <!-- SCREEN: START -->
+  <div id="screen-start" class="min-h-screen flex flex-col items-center justify-center p-6">
+    <div class="max-w-3xl w-full bg-slate-800 p-8 md:p-12 rounded-2xl shadow-2xl text-center border border-slate-700 relative overflow-hidden">
+      <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-500"></div>
+      <div class="mb-6 flex justify-center">
+        <svg class="w-20 h-20 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+        </svg>
+      </div>
+      <h1 class="text-3xl md:text-5xl font-extrabold mb-4 tracking-tight text-white">latihan Soal Biologi</h1>
+      <h2 class="text-lg md:text-xl text-slate-300 font-semibold mb-6">Materi: Bioteknologi</h2>
+      <div class="bg-slate-700/50 rounded-xl p-6 mb-8 text-left max-w-xl mx-auto border border-slate-600">
+        <h3 class="font-bold text-white mb-3">📋 Instruksi Latihan:</h3>
+        <ul class="list-disc pl-5 space-y-2 text-slate-300">
+          <li>Terdiri dari <strong>40 Soal Pilihan Ganda</strong>.</li>
+          <li>Terdapat pembahasan otomatis setelah menjawab setiap soal.</li>
+          <li>Pilih jawaban yang paling tepat dari pilihan A hingga E.</li>
+          <li>Di akhir sesi, kamu akan melihat persentase skor akhirmu.</li>
+        </ul>
+      </div>
+      <button onclick="startQuiz()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 px-10 rounded-full text-lg shadow-lg shadow-emerald-500/30 transition transform hover:-translate-y-1">
+        Mulai Latihan Sekarang
+      </button>
+      <p class="mt-8 text-xs text-slate-500">Sumber: Latihan Soal SHB Biologi — Bioteknologi</p>
+    </div>
+  </div>
+
+  <!-- SCREEN: QUIZ -->
+  <div id="screen-quiz" class="hidden min-h-screen py-8 px-4">
+    <div class="max-w-4xl mx-auto">
+      <div class="mb-6 flex items-center justify-between">
+        <span id="quiz-category" class="text-xs font-bold uppercase tracking-wider text-emerald-400 bg-emerald-900/30 px-3 py-1 rounded-full">Kategori</span>
+        <div id="quiz-progress-text" class="text-sm font-semibold text-slate-400">Soal 1 / 40</div>
+      </div>
+      <div class="w-full bg-slate-800 rounded-full h-2 mb-8 overflow-hidden">
+        <div id="quiz-progress-bar" class="bg-gradient-to-r from-emerald-500 to-teal-400 h-2 rounded-full transition-all duration-300 ease-out" style="width:0%"></div>
+      </div>
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl shadow-xl overflow-hidden mb-6">
+        <div id="stimulus-container" class="bg-slate-700/30 p-5 md:p-8 border-b border-slate-700 text-slate-300 hidden">
+          <div class="flex gap-3 mb-3 items-center">
+            <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <h3 class="font-semibold text-white">Teks/Data</h3>
+          </div>
+          <p id="quiz-stimulus" class="whitespace-pre-wrap leading-relaxed text-sm md:text-base"></p>
+        </div>
+        <div class="p-5 md:p-8">
+          <h2 id="quiz-question" class="text-lg md:text-xl font-semibold mb-6 leading-relaxed text-white">Pertanyaan</h2>
+          <div id="quiz-options" class="space-y-3"></div>
+        </div>
+      </div>
+      <div id="quiz-feedback-container" class="hidden animate-fade-in-up">
+        <div id="quiz-feedback-box" class="p-6 rounded-2xl border mb-6">
+          <div class="flex items-center gap-3 mb-2">
+            <div id="quiz-feedback-icon"></div>
+            <h3 id="quiz-feedback-title" class="font-bold text-lg"></h3>
+          </div>
+          <div class="pl-10">
+            <p id="quiz-feedback-text" class="opacity-90 leading-relaxed text-sm md:text-base"></p>
+          </div>
+        </div>
+        <div class="flex justify-end pb-12">
+          <button onclick="handleNextQuestion()" id="quiz-next-btn" class="bg-slate-700 hover:bg-slate-600 text-white px-8 py-3 rounded-full font-bold shadow-lg flex items-center gap-2 transition">
+            Soal Berikutnya
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN: RESULT -->
+  <div id="screen-result" class="hidden min-h-screen flex flex-col items-center justify-center p-6">
+    <div class="max-w-2xl w-full bg-slate-800 p-8 md:p-12 rounded-3xl shadow-2xl text-center border border-slate-700">
+      <h2 class="text-3xl font-bold mb-8 text-white">Latihan Selesai! 🎉</h2>
+      <div class="relative w-48 h-48 mx-auto mb-8">
+        <svg class="w-full h-full" viewBox="0 0 36 36">
+          <path class="text-slate-700" stroke-width="3" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+          <path id="result-circle" class="text-emerald-500" stroke-dasharray="0, 100" stroke-width="3" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+        </svg>
+        <div class="absolute inset-0 flex flex-col items-center justify-center">
+          <span id="result-score" class="text-5xl font-black text-white">0</span>
+          <span class="text-sm text-slate-400 mt-1">Skor Akhir</span>
+        </div>
+      </div>
+      <div class="bg-slate-700/30 rounded-xl p-6 mb-8 border border-slate-600">
+        <p class="text-lg">Kamu menjawab benar <strong id="result-correct" class="text-emerald-400 text-xl">0</strong> dari <strong id="result-total" class="text-blue-400 text-xl">40</strong> soal.</p>
+        <p id="result-message" class="mt-3 text-slate-400 italic"></p>
+      </div>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <button onclick="startQuiz()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-8 rounded-full transition">Ulangi Latihan 🔄</button>
+        <button onclick="goHome()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 px-8 rounded-full transition">Beranda Utama</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  /**
+   * Distribusi kunci jawaban (tersebar merata):
+   * A: soal 3,6,10,14,19,23,27,33 = 8 soal
+   * B: soal 2,5,13,22,25,29,35,38 = 8 soal
+   * C: soal 1,9,15,20,24,30,34,39 = 8 soal
+   * D: soal 4,7,11,16,21,26,31,36 = 8 soal
+   * E: soal 8,12,17,18,28,32,37,40 = 8 soal
+   */
+  const questionsData = [
+
+    // ── 1 — kunci C ──
+    {
+      id:1, category:"Biologi — Bioteknologi",
+      stimulus:"Seorang peneliti menggunakan enzim dari bakteri untuk mengubah limbah organik menjadi bahan bakar biogas. Proses ini melibatkan pemahaman dari berbagai disiplin ilmu terapan.",
+      question:"Berdasarkan rumusan dan definisi utamanya, mengapa kegiatan peneliti tersebut dapat diklasifikasikan secara tepat sebagai penerapan bioteknologi?",
+      options:[
+        {key:"A", text:"Karena secara langsung memodifikasi susunan genetik bakteri untuk mempercepat laju pembusukan sampah menjadi energi"},
+        {key:"B", text:"Karena menggabungkan ilmu fisika dan kimia murni untuk menciptakan ekosistem buatan bagi mikroorganisme pengurai"},
+        {key:"C", text:"Karena menggunakan prinsip ilmiah dan agen biologis untuk mengolah bahan mentah menjadi produk bernilai guna"},
+        {key:"D", text:"Karena memanfaatkan teknologi mesin modern untuk memanipulasi struktur sel prokariotik dalam limbah organik"},
+        {key:"E", text:"Karena menghasilkan produk gas ramah lingkungan dengan cara menekan populasi bakteri patogen dalam limbah"}
+      ],
+      correct:"C",
+      explanation:"Bioteknologi didefinisikan sebagai pemanfaatan organisme hidup atau bagian-bagiannya menggunakan prinsip ilmiah untuk menghasilkan produk bernilai guna bagi manusia."
+    },
+
+    // ── 2 — kunci B ──
+    {
+      id:2, category:"Biologi — Bioteknologi", stimulus:"",
+      question:"Seorang ilmuwan menyisipkan gen penghasil insulin manusia ke dalam plasmid bakteri sehingga bakteri mampu memproduksi insulin dalam jumlah besar. Teknologi yang digunakan adalah...",
+      options:[
+        {key:"A", text:"Fermentasi konvensional menggunakan khamir Saccharomyces"},
+        {key:"B", text:"Rekayasa genetika dengan teknik DNA rekombinan"},
+        {key:"C", text:"Kultur jaringan sel prokariotik tanpa modifikasi gen"},
+        {key:"D", text:"Hibridisasi somatik antara dua galur bakteri berbeda"},
+        {key:"E", text:"Seleksi buatan berbasis fenotipe produksi hormon tinggi"}
+      ],
+      correct:"B",
+      explanation:"Menyisipkan gen manusia ke dalam plasmid bakteri merupakan inti teknik rekayasa genetika (DNA rekombinan), bukan fermentasi maupun seleksi buatan."
+    },
+
+    // ── 3 — kunci A ──
+    {
+      id:3, category:"Biologi — Bioteknologi", stimulus:"",
+      question:"Dalam pembuatan tempe, jamur Rhizopus oligosporus berperan penting selama fermentasi kedelai. Peran utama jamur tersebut adalah...",
+      options:[
+        {key:"A", text:"Menghasilkan enzim protease dan amilase yang menguraikan protein serta karbohidrat kedelai"},
+        {key:"B", text:"Menyediakan oksigen bagi sel-sel kedelai yang sedang respirasi aerob"},
+        {key:"C", text:"Menghasilkan vitamin C dalam jumlah besar sehingga meningkatkan nilai gizi"},
+        {key:"D", text:"Mengubah gula kedelai menjadi pati sehingga tekstur menjadi lebih padat"},
+        {key:"E", text:"Menghasilkan antibodi yang melindungi kedelai dari kontaminasi bakteri patogen"}
+      ],
+      correct:"A",
+      explanation:"Rhizopus oligosporus mensekresikan enzim protease dan amilase yang memecah protein dan karbohidrat kedelai menjadi senyawa lebih sederhana sehingga lebih mudah dicerna dan bergizi lebih tinggi."
+    },
+
+    // ── 4 — kunci D ──
+    {
+      id:4, category:"Biologi — Bioteknologi", stimulus:"",
+      question:"Yoghurt memiliki cita rasa asam khas hasil aktivitas metabolisme bakteri. Pasangan mikroorganisme utama yang digunakan dalam fermentasi yoghurt adalah...",
+      options:[
+        {key:"A", text:"Escherichia coli dan Bacillus subtilis"},
+        {key:"B", text:"Rhizopus oligosporus dan Aspergillus niger"},
+        {key:"C", text:"Saccharomyces cerevisiae dan Acetobacter aceti"},
+        {key:"D", text:"Lactobacillus bulgaricus dan Streptococcus thermophilus"},
+        {key:"E", text:"Penicillium notatum dan Streptomyces griseus"}
+      ],
+      correct:"D",
+      explanation:"Yoghurt difermentasi oleh simbiosis Lactobacillus bulgaricus (penghasil asam laktat dominan) dan Streptococcus thermophilus (pembentuk aroma dan tekstur), keduanya bersifat homofermentatif."
+    },
+
+    // ── 5 — kunci B ──
+    {
+      id:5, category:"Biologi — Bioteknologi", stimulus:"",
+      question:"Adonan roti mengembang karena aktivitas metabolisme mikroorganisme yang melepaskan gas CO₂ dalam kondisi anaerob. Mikroorganisme yang bertanggung jawab adalah...",
+      options:[
+        {key:"A", text:"Lactobacillus bulgaricus yang menghasilkan asam laktat dari laktosa susu"},
+        {key:"B", text:"Saccharomyces cerevisiae yang memfermentasi glukosa menghasilkan etanol dan CO₂"},
+        {key:"C", text:"Aspergillus wentii yang mendegradasi pati menjadi dekstrin rantai pendek"},
+        {key:"D", text:"Rhizopus oligosporus yang membentuk miselium rapat di permukaan adonan"},
+        {key:"E", text:"Bacillus subtilis yang menghasilkan enzim amilase ekstraseluler pada suhu tinggi"}
+      ],
+      correct:"B",
+      explanation:"Saccharomyces cerevisiae (ragi roti) melakukan fermentasi alkohol: C₆H₁₂O₆ → 2C₂H₅OH + 2CO₂. Gas CO₂ yang terperangkap dalam jaringan gluten menyebabkan adonan mengembang."
+    },
+
+    // ── 6 — kunci A ──
+    {
+      id:6, category:"Biologi — Bioteknologi", stimulus:"",
+      question:"Pembuatan tape singkong telah berlangsung turun-temurun di masyarakat Indonesia. Alasan yang paling tepat mengapa proses ini dikategorikan sebagai bioteknologi konvensional adalah...",
+      options:[
+        {key:"A", text:"Memanfaatkan aktivitas mikroorganisme secara langsung tanpa dilakukan modifikasi atau manipulasi genetik"},
+        {key:"B", text:"Menggunakan rekayasa genetika untuk meningkatkan kecepatan fermentasi singkong"},
+        {key:"C", text:"Memerlukan peralatan laboratorium canggih berupa bioreaktor dan sentrifus industri"},
+        {key:"D", text:"Menghasilkan organisme transgenik yang mengandung gen resistensi terhadap penyakit"},
+        {key:"E", text:"Menerapkan teknik kloning inti sel untuk memperbanyak ragi secara identik genetik"}
+      ],
+      correct:"A",
+      explanation:"Bioteknologi konvensional dicirikan oleh penggunaan langsung mikroorganisme (ragi Saccharomyces cerevisiae) dalam fermentasi tanpa rekayasa genetik maupun peralatan bioteknologi modern."
+    },
+
+    // ── 7 — kunci D ──
+    {
+      id:7, category:"Biologi — Bioteknologi", stimulus:"",
+      question:"Tempe dan kapas Bt sama-sama merupakan produk bioteknologi namun berasal dari era berbeda. Perbedaan mendasar antara keduanya ditinjau dari teknik yang digunakan adalah...",
+      options:[
+        {key:"A", text:"Tempe menggunakan reaktor industri berteknologi tinggi, sedangkan kapas Bt diproduksi secara tradisional"},
+        {key:"B", text:"Tempe menghasilkan organisme baru yang berbeda spesies, sedangkan kapas Bt hanya mempertahankan varietas asli"},
+        {key:"C", text:"Tempe menggunakan teknik kloning sel somatik, sedangkan kapas Bt melalui seleksi buatan bertahun-tahun"},
+        {key:"D", text:"Tempe memanfaatkan mikroorganisme tanpa modifikasi gen, sedangkan kapas Bt menggunakan rekayasa DNA untuk menyisipkan gen Cry"},
+        {key:"E", text:"Tempe diproduksi melalui fusi protoplas antar spesies, sedangkan kapas Bt melalui fermentasi alami"}
+      ],
+      correct:"D",
+      explanation:"Perbedaan mendasar: tempe menggunakan fermentasi alami (bioteknologi konvensional), sedangkan kapas Bt adalah tanaman transgenik yang disisipi gen Cry dari Bacillus thuringiensis menggunakan rekayasa DNA."
+    },
+
+    // ── 8 — kunci E ──
+    {
+      id:8, category:"Biologi — Bioteknologi", stimulus:"",
+      question:"Nata de coco adalah produk pangan berupa lapisan gel putih hasil fermentasi air kelapa. Mikroorganisme kunci yang membentuk lapisan selulosa tersebut adalah...",
+      options:[
+        {key:"A", text:"Saccharomyces cerevisiae yang memfermentasi glukosa kelapa menjadi alkohol"},
+        {key:"B", text:"Lactobacillus casei yang menghasilkan asam laktat dari fruktosa air kelapa"},
+        {key:"C", text:"Aspergillus niger yang mensintesis asam sitrat dari gula sederhana"},
+        {key:"D", text:"Bacillus subtilis yang membentuk lapisan biofilm spora di permukaan"},
+        {key:"E", text:"Acetobacter xylinum yang mensintesis rantai selulosa dari gula dalam air kelapa"}
+      ],
+      correct:"E",
+      explanation:"Acetobacter xylinum (kini: Komagataeibacter xylinus) mensintesis rantai selulosa ekstraseluler dari glukosa air kelapa, membentuk lapisan gel transparan padat yang dikenal sebagai nata de coco."
+    },
+
+    // ── 9 — kunci C ──
+    {
+      id:9, category:"Biologi — Bioteknologi", stimulus:"",
+      question:"Keju Swiss memiliki ciri khas berupa lubang-lubang bulat di dalam massanya. Lubang tersebut terbentuk karena...",
+      options:[
+        {key:"A", text:"Oksigen yang terperangkap akibat proses pasteurisasi pada suhu tinggi"},
+        {key:"B", text:"Hidrogen yang dihasilkan oleh bakteri anaerob obligat pada kondisi hampa udara"},
+        {key:"C", text:"Gas karbon dioksida yang dilepaskan oleh bakteri Propionibacterium selama fermentasi"},
+        {key:"D", text:"Nitrogen terlarut yang membentuk gelembung saat suhu pematangan turun drastis"},
+        {key:"E", text:"Amonia yang dihasilkan saat bakteri mendegradasi asam amino pada substrat susu"}
+      ],
+      correct:"C",
+      explanation:"Bakteri Propionibacterium freudenreichii menguraikan asam laktat menjadi asam propionat, asam asetat, dan CO₂. Gas CO₂ yang terperangkap dalam massa keju yang memadat membentuk rongga-rongga khas keju Swiss."
+    },
+
+    // ── 10 — kunci A ──
+    {
+      id:10, category:"Biologi — Bioteknologi", stimulus:"",
+      question:"Penemuan antibiotik penisilin oleh Alexander Fleming (1928) menjadi tonggak sejarah bioteknologi medis. Jamur penghasil penisilin tersebut adalah...",
+      options:[
+        {key:"A", text:"Penicillium notatum yang ditemukan Fleming tumbuh mencemari cawan bakteri di laboratoriumnya"},
+        {key:"B", text:"Aspergillus niger yang diisolasi dari tanah lembab di laboratorium Oxford pada tahun 1940"},
+        {key:"C", text:"Rhizopus oligosporus yang menghasilkan senyawa penghambat bakteri gram positif"},
+        {key:"D", text:"Saccharomyces cerevisiae yang termodifikasi secara alami melalui mutasi spontan"},
+        {key:"E", text:"Trichoderma reesei yang dikenal sebagai penghasil antimikroba spektrum luas"}
+      ],
+      correct:"A",
+      explanation:"Penisilin dihasilkan oleh jamur Penicillium notatum. Fleming mengamati bahwa koloni jamur ini membentuk zona hambat di sekitar koloni Staphylococcus aureus yang tumbuh bersebelahan."
+    },
+
+    // ── 11 — kunci D ──
+    {
+      id:11, category:"Biologi — Bioteknologi", stimulus:"",
+      question:"Dalam industri makanan dan minuman, enzim amilase banyak digunakan sebagai agen pengolah. Fungsi spesifik enzim amilase adalah...",
+      options:[
+        {key:"A", text:"Memotong ikatan peptida pada protein susu untuk membentuk kasein terkoagulasi"},
+        {key:"B", text:"Menghidrolisis ikatan ester pada trigliserida menjadi asam lemak bebas dan gliserol"},
+        {key:"C", text:"Memecah ikatan glikosidik beta-1,4 pada rantai selulosa menjadi selobiosa"},
+        {key:"D", text:"Mengurai ikatan glikosidik alfa pada pati menghasilkan gula sederhana seperti maltosa dan glukosa"},
+        {key:"E", text:"Mengoksidasi asam amino aromatik menjadi pigmen warna cokelat pada produk roti"}
+      ],
+      correct:"D",
+      explanation:"Amilase (α-amilase dan β-amilase) secara spesifik memutus ikatan glikosidik α-1,4 pada rantai pati (amilosa/amilopektin) menghasilkan maltosa, dekstrin, dan glukosa yang dapat difermentasi lebih lanjut."
+    },
+
+    // ── 12 — kunci E ──
+    {
+      id:12, category:"Biologi — Bioteknologi", stimulus:"",
+      question:"Biogas merupakan energi terbarukan dari fermentasi anaerob limbah organik. Komponen gas utama dalam biogas yang berfungsi sebagai bahan bakar adalah...",
+      options:[
+        {key:"A", text:"Oksigen (O₂) yang dilepaskan oleh bakteri aerob fakultatif saat mengoksidasi bahan organik"},
+        {key:"B", text:"Nitrogen (N₂) hasil deaminasi asam amino oleh bakteri tanah pada kondisi lembab"},
+        {key:"C", text:"Karbon monoksida (CO) produk pembakaran tidak sempurna biomassa organik"},
+        {key:"D", text:"Hidrogen (H₂) yang dihasilkan bakteri asetogenik dari oksidasi asam organik"},
+        {key:"E", text:"Metana (CH₄) yang diproduksi bakteri metanogen dalam kondisi anaerob ketat"}
+      ],
+      correct:"E",
+      explanation:"Metana (CH₄) adalah komponen utama biogas (50–75%), dihasilkan oleh bakteri metanogen (archaea) seperti Methanobacterium yang mereduksi CO₂ menggunakan H₂ pada kondisi anaerob."
+    },
+
+    // ── 13 — kunci B ──
+    {
+      id:13, category:"Biologi — Bioteknologi", stimulus:"",
+      question:"Tanaman kapas Bt direkayasa agar tahan terhadap serangan hama ulat penggerek tanpa perlu pestisida kimia. Ketahanan ini diperoleh karena tanaman mengandung gen Cry dari bakteri...",
+      options:[
+        {key:"A", text:"Bacillus subtilis yang umum ditemukan di tanah pertanian Asia Tenggara"},
+        {key:"B", text:"Bacillus thuringiensis yang menghasilkan protein kristal insektisida spesifik"},
+        {key:"C", text:"Escherichia coli yang lazim digunakan sebagai vektor pengiriman gen"},
+        {key:"D", text:"Rhizobium leguminosarum yang bersimbiosis dengan akar tanaman legum"},
+        {key:"E", text:"Pseudomonas putida yang dikenal sebagai agen biokontrol di rizosfer"}
+      ],
+      correct:"B",
+      explanation:"Gen Cry (crystal protein) yang menyandikan protein insektisida berasal dari Bacillus thuringiensis. Protein ini membentuk pori pada sel usus serangga hama sehingga bersifat toksik, namun aman bagi mamalia."
+    },
+
+    // ── 14 — kunci A ──
+    {
+      id:14, category:"Biologi — Bioteknologi", stimulus:"",
+      question:"Teknik kultur jaringan memungkinkan satu sel atau jaringan kecil tumbuhan berkembang menjadi individu utuh. Prinsip biologis yang mendasari kemampuan tersebut adalah...",
+      options:[
+        {key:"A", text:"Totipotensi, yaitu kemampuan setiap sel tumbuhan yang mengandung informasi genetik lengkap untuk berkembang menjadi individu"},
+        {key:"B", text:"Diferensiasi, yaitu kemampuan sel berubah menjadi berbagai jaringan khusus secara irreversibel"},
+        {key:"C", text:"Adaptasi fisiologis, yaitu kemampuan tumbuhan menyesuaikan diri terhadap medium buatan steril"},
+        {key:"D", text:"Mutasi somatik, yaitu perubahan acak gen pada sel vegetatif yang mendorong pertumbuhan tak terbatas"},
+        {key:"E", text:"Evolusi konvergen, yaitu kecenderungan sel tidak berkerabat memperoleh sifat serupa di lingkungan sama"}
+      ],
+      correct:"A",
+      explanation:"Totipotensi (totus=seluruh, potens=berkekuatan) adalah sifat sel tumbuhan yang mampu memprogram ulang dirinya dan berkembang menjadi organisme lengkap karena membawa salinan genom yang utuh."
+    },
+
+    // ── 15 — kunci C ──
+    {
+      id:15, category:"Biologi — Bioteknologi", stimulus:"",
+      question:"Urutan tahapan kultur jaringan tumbuhan yang benar dari awal hingga diperoleh tanaman baru adalah...",
+      options:[
+        {key:"A", text:"Kalus → eksplan → embrioid → plantlet → tanaman baru"},
+        {key:"B", text:"Eksplan → plantlet → kalus → embrioid → tanaman baru"},
+        {key:"C", text:"Eksplan → kalus → plantlet → tanaman baru"},
+        {key:"D", text:"Plantlet → kalus → eksplan → aklimatisasi → tanaman baru"},
+        {key:"E", text:"Kalus → eksplan → aklimatisasi → plantlet → tanaman baru"}
+      ],
+      correct:"C",
+      explanation:"Urutan baku kultur jaringan: Eksplan (potongan jaringan sumber) → Kalus (massa sel tak terdiferensiasi pada medium padat) → Plantlet (tanaman kecil bertunas dan berakar) → Tanaman baru setelah aklimatisasi."
+    },
+
+    // ── 16 — kunci D ──
+    {
+      id:16, category:"Biologi — Bioteknologi", stimulus:"",
+      question:"Bioremediasi digunakan untuk memulihkan lingkungan yang tercemar polutan berbahaya. Definisi yang paling tepat untuk teknik bioremediasi adalah...",
+      options:[
+        {key:"A", text:"Penggunaan mesin penghancur mekanik berputaran tinggi untuk memisahkan polutan dari tanah"},
+        {key:"B", text:"Penerapan sinar ultraviolet intensitas tinggi untuk mendegradasi senyawa organik beracun"},
+        {key:"C", text:"Reaksi kimia sintetis antara reagen laboratorium dan polutan di lapangan terbuka"},
+        {key:"D", text:"Pemanfaatan mikroorganisme hidup untuk mengurai atau menetralisasi polutan di lingkungan"},
+        {key:"E", text:"Teknologi filtrasi mekanik menggunakan membran semipermeabel nano-skala bertekanan tinggi"}
+      ],
+      correct:"D",
+      explanation:"Bioremediasi adalah penggunaan organisme hidup—terutama bakteri dan jamur—untuk mendegradasi polutan organik (minyak, pestisida, logam berat) menjadi senyawa yang tidak berbahaya bagi lingkungan."
+    },
+
+    // ── 17 — kunci E ──
+    {
+      id:17, category:"Biologi — Bioteknologi", stimulus:"",
+      question:"Bioleaching adalah aplikasi bioteknologi dalam industri pertambangan modern. Tujuan utama penggunaan bioleaching adalah...",
+      options:[
+        {key:"A", text:"Menghasilkan antibiotik dari bijih mineral yang kaya unsur nitrogen dan fosfor"},
+        {key:"B", text:"Mempercepat pertumbuhan tanaman revegetasi di lahan bekas tambang terbuka"},
+        {key:"C", text:"Menghasilkan listrik bioelektrik dari reaksi oksidasi mineral sulfida bawah tanah"},
+        {key:"D", text:"Membunuh hama organisme yang hidup di lapisan batuan bawah tanah tambang"},
+        {key:"E", text:"Mengekstraksi logam berharga dari bijih mineral menggunakan bakteri pengoksidasi"}
+      ],
+      correct:"E",
+      explanation:"Bioleaching memanfaatkan bakteri kemoautotrof seperti Acidithiobacillus ferrooxidans untuk mengoksidasi mineral sulfida dan melarutkan logam (tembaga, emas, nikel) ke dalam larutan agar mudah dipanen."
+    },
+
+    // ── 18 — kunci E ──
+    {
+      id:18, category:"Biologi — Bioteknologi",
+      stimulus:"Dalam industri peternakan domba, peternak menggunakan hormon rekombinan yang disuntikkan untuk mempermudah proses panen wol.",
+      question:"Fungsi utama hormon rekombinan yang diberikan kepada domba tersebut adalah...",
+      options:[
+        {key:"A", text:"Menebalkan lapisan dermis kulit domba sehingga lebih tahan terhadap luka dan infeksi"},
+        {key:"B", text:"Meningkatkan produksi susu pada domba betina untuk kebutuhan industri keju lokal"},
+        {key:"C", text:"Membentuk lapisan antibakteri pada kulit domba guna mencegah infeksi dermatitis kronik"},
+        {key:"D", text:"Memperkuat akar rambut wol agar tidak mudah patah selama fase pertumbuhan aktif"},
+        {key:"E", text:"Merangsang percepatan pertumbuhan wol secara seragam sehingga mudah rontok saat dipanen"}
+      ],
+      correct:"E",
+      explanation:"Hormon rekombinan (Epidermal Growth Factor rekombinan) diinjeksikan untuk memacu pertumbuhan serat wol lebih cepat dan serentak, sehingga wol melemah di akarnya dan dapat dipanen tanpa pencukuran manual yang menyakitkan."
+    },
+
+    // ── 19 — kunci A ──
+    {
+      id:19, category:"Biologi — Bioteknologi", stimulus:"",
+      question:"Kloning dalam bioteknologi modern merujuk pada proses reproduksi khusus. Definisi yang paling tepat untuk kloning adalah...",
+      options:[
+        {key:"A", text:"Proses menghasilkan individu atau molekul yang secara genetik identik dengan organisme atau sel sumber asalnya"},
+        {key:"B", text:"Proses penggabungan dua sel dari spesies berbeda melalui fusi membran plasma secara in vitro"},
+        {key:"C", text:"Proses modifikasi urutan basa nitrogen pada segmen gen tertentu menggunakan CRISPR-Cas9"},
+        {key:"D", text:"Proses mutasi terarah yang menghasilkan variasi genetik baru secara acak menggunakan mutagen"},
+        {key:"E", text:"Proses perkawinan silang antar varietas unggul untuk mendapatkan keturunan dengan sifat terbaik"}
+      ],
+      correct:"A",
+      explanation:"Kloning adalah teknik reproduksi aseksual yang menghasilkan salinan genetik identik (klon) dari organisme, sel, atau fragmen DNA sumber, tanpa proses pembuahan seksual."
+    },
+
+    // ── 20 — kunci C ──
+    {
+      id:20, category:"Biologi — Bioteknologi", stimulus:"",
+      question:"Domba Dolly (lahir 1996) adalah mamalia pertama yang berhasil dikloning dari sel dewasa. Teknik khusus yang digunakan untuk menghasilkan Dolly adalah...",
+      options:[
+        {key:"A", text:"Fusi protoplas antara sel telur tidak terbuahi dan sel kelenjar susu yang diinkubasi bersama"},
+        {key:"B", text:"Injeksi DNA mitokondria dari sel somatik ke dalam sel telur yang sudah dienukleasi"},
+        {key:"C", text:"Transfer inti sel somatik (SCNT) dari sel kelenjar susu ke sel telur yang dikeluarkan intinya"},
+        {key:"D", text:"Kultur jaringan dari irisan jaringan kulit domba betina donor berusia muda"},
+        {key:"E", text:"Hibridisasi genom antara dua galur domba berbeda ras melalui fertilisasi in vitro"}
+      ],
+      correct:"C",
+      explanation:"Dolly dihasilkan melalui Somatic Cell Nuclear Transfer (SCNT): inti sel somatik (kelenjar susu domba Finn Dorset) dipindahkan ke sel telur domba Scottish Blackface yang telah dienukleasi, lalu ditanamkan ke rahim induk pengganti."
+    },
+
+    // ── 21 — kunci D ──
+    {
+      id:21, category:"Biologi — Bioteknologi", stimulus:"",
+      question:"Kecap merupakan produk fermentasi kedelai hitam yang kaya cita rasa umami. Jamur yang berperan utama dalam proses fermentasi awal kecap adalah...",
+      options:[
+        {key:"A", text:"Saccharomyces cerevisiae yang memfermentasi glukosa menjadi alkohol pada tahap akhir"},
+        {key:"B", text:"Rhizopus oligosporus yang membentuk miselium padat mengikat biji kedelai"},
+        {key:"C", text:"Penicillium notatum yang menghasilkan enzim selulase ekstraseluler pada substrat kedelai"},
+        {key:"D", text:"Aspergillus wentii yang mensekresikan enzim protease dan amilase untuk mendegradasi kedelai"},
+        {key:"E", text:"Acetobacter aceti yang mengoksidasi alkohol menjadi asam asetat pada fermentasi lanjut"}
+      ],
+      correct:"D",
+      explanation:"Aspergillus wentii (dan A. sojae) adalah jamur koji yang menghasilkan berbagai enzim hidrolitik untuk mendegradasi protein dan karbohidrat kedelai pada tahap pertama pembuatan kecap (koji fermentation)."
+    },
+
+    // ── 22 — kunci B ──
+    {
+      id:22, category:"Biologi — Bioteknologi", stimulus:"",
+      question:"Cuka (vinegar) merupakan produk fermentasi yang banyak digunakan dalam industri makanan dan minuman. Bakteri yang menghasilkan asam asetat dalam proses pembuatan cuka adalah...",
+      options:[
+        {key:"A", text:"Lactobacillus casei yang mengubah laktosa menjadi asam laktat pada kondisi anaerob"},
+        {key:"B", text:"Acetobacter aceti yang mengoksidasi etanol menjadi asam asetat secara aerob"},
+        {key:"C", text:"Escherichia coli yang menghasilkan asam format dalam fermentasi campuran"},
+        {key:"D", text:"Rhizopus oligosporus yang menghasilkan asam organik dari substrat kedelai"},
+        {key:"E", text:"Bacillus subtilis yang mensintesis asam asetat dalam kondisi aerob dengan substrat glukosa"}
+      ],
+      correct:"B",
+      explanation:"Acetobacter aceti mengoksidasi etanol (hasil fermentasi khamir) menjadi asam asetat melalui reaksi aerob: C₂H₅OH + O₂ → CH₃COOH + H₂O. Ini adalah tahap kedua dalam produksi cuka."
+    },
+
+    // ── 23 — kunci A ──
+    {
+      id:23, category:"Biologi — Bioteknologi", stimulus:"",
+      question:"Penisilin merupakan antibiotik terpenting dalam sejarah kedokteran modern. Mekanisme kerja utama penisilin terhadap bakteri adalah...",
+      options:[
+        {key:"A", text:"Menghambat sintesis dinding sel peptidoglikan bakteri sehingga sel bakteri mengalami lisis osmotik"},
+        {key:"B", text:"Menghancurkan kapsid protein virus sehingga virus tidak dapat menginfeksi sel inang"},
+        {key:"C", text:"Menghambat enzim RNA polimerase jamur patogen pada inti selnya"},
+        {key:"D", text:"Mengoksidasi membran plasma protozoa sehingga kehilangan selektivitas permeabilitas"},
+        {key:"E", text:"Memblokir sintesis klorofil pada alga parasit yang menginfeksi tubuh manusia"}
+      ],
+      correct:"A",
+      explanation:"Penisilin bekerja dengan menghambat enzim transpeptidase yang dibutuhkan untuk mensintesis ikatan silang peptidoglikan pada dinding sel bakteri. Tanpa dinding sel yang utuh, bakteri mengalami lisis osmotik dan mati."
+    },
+
+    // ── 24 — kunci C ──
+    {
+      id:24, category:"Biologi — Bioteknologi", stimulus:"",
+      question:"Produksi insulin rekombinan telah merevolusi pengobatan diabetes mellitus sejak 1982. Bakteri yang menjadi inang ekspresi gen insulin manusia dalam skala industri adalah...",
+      options:[
+        {key:"A", text:"Rhizopus oligosporus karena memiliki plasmid alami yang mudah dimodifikasi secara in vitro"},
+        {key:"B", text:"Acetobacter xylinum karena aktif pada suhu tubuh manusia dan mudah dikultur"},
+        {key:"C", text:"Escherichia coli karena genetikanya sangat dipahami, pertumbuhannya cepat, dan dapat menghasilkan protein heterolog"},
+        {key:"D", text:"Lactobacillus bulgaricus karena sistem fermentasinya homofermentatif dan aman dikonsumsi"},
+        {key:"E", text:"Bacillus subtilis karena kemampuan sporulasi mendukung ketahanan produk jangka panjang"}
+      ],
+      correct:"C",
+      explanation:"E. coli dipilih sebagai inang ekspresi insulin karena genetikanya paling terkarakterisasi, memiliki plasmid alami yang mudah dimanipulasi, tumbuh sangat cepat (generasi 20 menit), dan dapat memproduksi protein asing dalam jumlah besar."
+    },
+
+    // ── 25 — kunci B ──
+    {
+      id:25, category:"Biologi — Bioteknologi", stimulus:"",
+      question:"Tanaman transgenik kini banyak dimanfaatkan dalam pertanian modern. Definisi yang paling tepat untuk tanaman transgenik adalah...",
+      options:[
+        {key:"A", text:"Tanaman yang mengalami mutasi kromosom secara alami akibat paparan radiasi sinar gamma di alam"},
+        {key:"B", text:"Tanaman yang genomnya telah dimodifikasi dengan menyisipkan gen fungsional dari organisme lain"},
+        {key:"C", text:"Tanaman yang diperbanyak secara vegetatif menggunakan teknik stek batang atau cangkok"},
+        {key:"D", text:"Tanaman yang dibudidayakan dalam sistem hidroponik tanpa menggunakan media tanah"},
+        {key:"E", text:"Tanaman hasil persilangan alami antara dua varietas berbeda dalam satu spesies yang sama"}
+      ],
+      correct:"B",
+      explanation:"Tanaman transgenik (GMO) adalah organisme yang genomnya dimodifikasi melalui rekayasa genetika dengan menyisipkan satu atau lebih gen dari organisme lain, bahkan dari kingdom yang berbeda."
+    },
+
+    // ── 26 — kunci D ──
+    {
+      id:26, category:"Biologi — Bioteknologi", stimulus:"",
+      question:"Teknik DNA rekombinan merupakan fondasi utama bioteknologi modern. Tujuan utama dari teknik DNA rekombinan adalah...",
+      options:[
+        {key:"A", text:"Mempercepat laju fermentasi dengan meningkatkan konsentrasi substrat organik secara kimiawi"},
+        {key:"B", text:"Menghancurkan sekuen DNA yang tidak diinginkan menggunakan enzim nuklease non-spesifik"},
+        {key:"C", text:"Memperbanyak bakteri secara eksponensial dalam bioreaktor skala industri besar"},
+        {key:"D", text:"Menggabungkan fragmen DNA dari organisme berbeda untuk mengekspresikan sifat yang diinginkan"},
+        {key:"E", text:"Mempercepat laju mutasi alami pada lokus gen tertentu melalui iradiasi sinar gamma terarah"}
+      ],
+      correct:"D",
+      explanation:"DNA rekombinan dibuat dengan: (1) memotong DNA donor menggunakan enzim restriksi, (2) menyambungkan ke vektor (plasmid/fag) menggunakan DNA ligase, (3) memasukkan ke inang untuk diekspresikan menghasilkan produk yang diinginkan."
+    },
+
+    // ── 27 — kunci A ──
+    {
+      id:27, category:"Biologi — Bioteknologi", stimulus:"",
+      question:"Dalam industri detergen dan pengolahan makanan, enzim protease industri banyak dimanfaatkan secara luas. Fungsi spesifik enzim protease adalah...",
+      options:[
+        {key:"A", text:"Menghidrolisis ikatan peptida pada rantai polipeptida menjadi asam amino atau peptida lebih kecil"},
+        {key:"B", text:"Memecah ikatan glikosidik alfa-1,4 pada rantai amilosa menjadi unit maltosa"},
+        {key:"C", text:"Mengkatalisis oksidasi asam lemak tak jenuh pada suhu dan tekanan tinggi"},
+        {key:"D", text:"Mendegradasi rantai selulosa menjadi unit selobiosa melalui hidrolisis enzimatik"},
+        {key:"E", text:"Mengubah sukrosa menjadi glukosa dan fruktosa melalui reaksi hidrolisis oleh invertase"}
+      ],
+      correct:"A",
+      explanation:"Protease (endopeptidase dan eksopeptidase) secara spesifik memutus ikatan peptida (-CO-NH-) pada protein, menghasilkan peptida rantai lebih pendek dan akhirnya asam amino bebas yang dapat dimanfaatkan."
+    },
+
+    // ── 28 — kunci E ──
+    {
+      id:28, category:"Biologi — Bioteknologi", stimulus:"",
+      question:"Enzim lipase dimanfaatkan dalam berbagai industri mulai dari pengolahan pangan hingga produksi biodiesel ramah lingkungan. Reaksi yang dikatalisis oleh lipase adalah...",
+      options:[
+        {key:"A", text:"Hidrolisis ikatan glikosidik pada pati menjadi monomer glukosa yang dapat difermentasi"},
+        {key:"B", text:"Deaminasi asam amino menjadi asam keto dan amonia dalam proses katabolisme nitrogen"},
+        {key:"C", text:"Oksidasi asam lemak rantai panjang menjadi asetil-KoA dalam siklus beta-oksidasi"},
+        {key:"D", text:"Hidrolisis ikatan fosfodiester pada molekul DNA untai ganda oleh nuklease"},
+        {key:"E", text:"Hidrolisis ikatan ester pada trigliserida menghasilkan asam lemak bebas dan gliserol"}
+      ],
+      correct:"E",
+      explanation:"Lipase mengkatalisis hidrolisis ikatan ester pada trigliserida (lemak): trigliserida + 3H₂O → gliserol + 3 asam lemak bebas. Reaksi ini bersifat reversibel dan dimanfaatkan dalam industri detergen, makanan, dan biodiesel."
+    },
+
+    // ── 29 — kunci B ──
+    {
+      id:29, category:"Biologi — Bioteknologi", stimulus:"",
+      question:"Streptomisin adalah antibiotik penting yang digunakan untuk mengobati infeksi tuberkulosis. Mikroorganisme yang dimanfaatkan untuk memproduksi streptomisin adalah...",
+      options:[
+        {key:"A", text:"Rhizopus oligosporus yang ditemukan dalam substrat fermentasi kedelai fermented"},
+        {key:"B", text:"Streptomyces griseus, bakteri tanah filamentosa yang ditemukan oleh Waksman pada 1943"},
+        {key:"C", text:"Saccharomyces cerevisiae yang direkayasa secara genetik untuk memproduksi antibiotik aminoglikosida"},
+        {key:"D", text:"Acetobacter aceti yang dimodifikasi untuk mensintesis senyawa antimikroba spesifik"},
+        {key:"E", text:"Lactobacillus casei yang menghasilkan bakteriosin pada kondisi pH sangat rendah"}
+      ],
+      correct:"B",
+      explanation:"Streptomisin diisolasi dari Streptomyces griseus oleh Selman Waksman pada 1943. Ini adalah antibiotik aminoglikosida pertama yang efektif melawan Mycobacterium tuberculosis dan menghasilkan Nobel Fisiologi 1952."
+    },
+
+    // ── 30 — kunci C ──
+    {
+      id:30, category:"Biologi — Bioteknologi", stimulus:"",
+      question:"Rasa asam khas yoghurt berasal dari akumulasi asam organik hasil metabolisme bakteri. Genus bakteri penghasil asam laktat dominan pada yoghurt adalah...",
+      options:[
+        {key:"A", text:"Bacillus yang menghasilkan berbagai asam organik dalam kondisi aerob"},
+        {key:"B", text:"Clostridium yang melakukan fermentasi asam butirat secara anaerob obligat"},
+        {key:"C", text:"Lactobacillus yang mengkonversi laktosa menjadi asam laktat secara homofermentatif"},
+        {key:"D", text:"Pseudomonas yang mengoksidasi glukosa menghasilkan asam glukonat"},
+        {key:"E", text:"Escherichia yang melakukan fermentasi campuran menghasilkan berbagai asam organik sekaligus"}
+      ],
+      correct:"C",
+      explanation:"Lactobacillus (terutama L. bulgaricus dan L. acidophilus) adalah bakteri asam laktat homofermentatif yang mengubah >85% laktosa menjadi asam laktat, menurunkan pH yoghurt hingga 4,0–4,5 dan menghambat pertumbuhan bakteri perusak."
+    },
+
+    // ── 31 — kunci D ──
+    {
+      id:31, category:"Biologi — Bioteknologi", stimulus:"",
+      question:"Bioetanol sebagai bahan bakar alternatif diproduksi melalui fermentasi gula oleh mikroorganisme. Organisme yang paling umum digunakan dalam produksi bioetanol skala industri adalah...",
+      options:[
+        {key:"A", text:"Aspergillus niger yang menghasilkan asam sitrat sebagai produk sampingan fermentasi"},
+        {key:"B", text:"Rhizopus oligosporus yang mengurai pati dalam kondisi semi-aerob"},
+        {key:"C", text:"Penicillium notatum yang menghasilkan alkohol sebagai produk fermentasi primer"},
+        {key:"D", text:"Saccharomyces cerevisiae yang melakukan fermentasi alkohol menghasilkan etanol dan CO₂"},
+        {key:"E", text:"Acetobacter aceti yang mengoksidasi etanol menjadi asam asetat secara aerob"}
+      ],
+      correct:"D",
+      explanation:"Saccharomyces cerevisiae adalah organisme industri pilihan untuk bioetanol karena toleransi alkohol tinggi (hingga 15%), pertumbuhan sangat cepat, dan efisiensi konversi gula menjadi etanol yang optimal."
+    },
+
+    // ── 32 — kunci E ──
+    {
+      id:32, category:"Biologi — Bioteknologi", stimulus:"",
+      question:"Tempe merupakan pangan fermentasi tradisional Indonesia yang kaya protein dan mudah dicerna. Jamur yang secara spesifik digunakan sebagai agen fermentasi tempe adalah...",
+      options:[
+        {key:"A", text:"Saccharomyces cerevisiae yang juga digunakan dalam pembuatan roti dan minuman beralkohol"},
+        {key:"B", text:"Lactobacillus bulgaricus yang menghasilkan asam laktat dari laktosa susu"},
+        {key:"C", text:"Aspergillus niger yang menghasilkan asam sitrat dari sumber gula sederhana"},
+        {key:"D", text:"Acetobacter aceti yang mengoksidasi alkohol menjadi asam asetat pada kondisi aerob"},
+        {key:"E", text:"Rhizopus oligosporus yang membentuk miselium padat mengikat biji kedelai menjadi cake kompak"}
+      ],
+      correct:"E",
+      explanation:"Rhizopus oligosporus adalah jamur zigomisetes yang miseliumnya menembus dan mengikat biji kedelai menjadi cake padat, menghasilkan enzim pemecah protein dan lemak, meningkatkan kandungan vitamin B12 dan nilai gizi tempe."
+    },
+
+    // ── 33 — kunci A ──
+    {
+      id:33, category:"Biologi — Bioteknologi", stimulus:"",
+      question:"Bioteknologi modern mengalami percepatan luar biasa sejak pertengahan abad ke-20. Penemuan ilmiah yang menjadi titik balik perkembangan bioteknologi modern adalah...",
+      options:[
+        {key:"A", text:"Pengungkapan struktur double helix DNA oleh Watson dan Crick pada 1953 yang membuka jalan manipulasi genetik"},
+        {key:"B", text:"Penemuan mikroskop elektron oleh Knoll dan Ruska pada 1931 untuk visualisasi organel sel"},
+        {key:"C", text:"Pengamatan sel pertama oleh Robert Hooke menggunakan mikroskop cahaya sederhana"},
+        {key:"D", text:"Penemuan virus mosaik tembakau oleh Iwanowski yang membuktikan agen penyakit non-bakteri"},
+        {key:"E", text:"Isolasi enzim diastase pertama oleh Payen dan Persoz dari malt kecambah gandum"}
+      ],
+      correct:"A",
+      explanation:"Penemuan struktur double helix DNA oleh Watson dan Crick (1953) membuka pemahaman mekanisme hereditas dan replikasi DNA, memungkinkan pengembangan teknik rekayasa genetika yang menjadi fondasi bioteknologi modern."
+    },
+
+    // ── 34 — kunci C ──
+    {
+      id:34, category:"Biologi — Bioteknologi", stimulus:"",
+      question:"Bioplastik ramah lingkungan dapat diproduksi secara biologis untuk menggantikan plastik sintetis dari minyak bumi. Bakteri yang memiliki kemampuan alami menghasilkan polimer bioplastik adalah...",
+      options:[
+        {key:"A", text:"Bacillus subtilis yang menghasilkan spora endospor resisten dalam kondisi nutrisi tercekam"},
+        {key:"B", text:"Streptomyces griseus yang mensintesis poliketida sebagai metabolit sekunder antibiotik"},
+        {key:"C", text:"Alcaligenes eutrophus yang menyimpan polihidroksialkanoat (PHA) sebagai cadangan karbon intraseluler"},
+        {key:"D", text:"Penicillium notatum yang menghasilkan beta-laktam pada fase stasioner pertumbuhan"},
+        {key:"E", text:"Rhizopus oligosporus yang mensintesis polisakarida ekstraseluler selama fermentasi"}
+      ],
+      correct:"C",
+      explanation:"Alcaligenes eutrophus (kini Cupriavidus necator) mengakumulasi granula Polihidroksibutirat (PHB) atau PHA di dalam selnya sebagai cadangan energi dan karbon yang dapat diekstraksi sebagai bahan bioplastik biodegradable."
+    },
+
+    // ── 35 — kunci B ──
+    {
+      id:35, category:"Biologi — Bioteknologi", stimulus:"",
+      question:"Enzim selulase dibutuhkan dalam industri bioetanol generasi kedua untuk mengurai biomassa lignoselulosa menjadi gula fermentasi. Mikroorganisme utama penghasil selulase industri adalah...",
+      options:[
+        {key:"A", text:"Rhizopus oligosporus yang mengurai selulosa dalam substrat fermentasi kedelai hitam"},
+        {key:"B", text:"Trichoderma reesei yang menghasilkan kompleks enzim selulase ekstraseluler dalam jumlah besar"},
+        {key:"C", text:"Saccharomyces cerevisiae yang mengekspresikan selulase heterolog setelah transformasi genetik"},
+        {key:"D", text:"Lactobacillus bulgaricus yang menguraikan selulosa pada kondisi pH sangat rendah"},
+        {key:"E", text:"Acetobacter aceti yang mensintesis selulase bersama-sama dengan selulosa bakteri"}
+      ],
+      correct:"B",
+      explanation:"Trichoderma reesei adalah jamur filamentosa paling produktif menghasilkan kompleks enzim selulase (endoglukanase, eksoglukanase, β-glukosidase) dan digunakan secara luas dalam industri bioetanol, tekstil, dan kertas."
+    },
+
+    // ── 36 — kunci D ──
+    {
+      id:36, category:"Biologi — Bioteknologi", stimulus:"",
+      question:"Vaksin rekombinan generasi baru lebih aman dibandingkan vaksin konvensional yang menggunakan patogen hidup dilemahkan. Teknik yang digunakan untuk membuat vaksin rekombinan adalah...",
+      options:[
+        {key:"A", text:"Fermentasi alami menggunakan kultur campuran berbagai mikroorganisme patogen dilemahkan"},
+        {key:"B", text:"Seleksi buatan terhadap strain mikroorganisme dengan imunogenisitas dan keamanan tertinggi"},
+        {key:"C", text:"Hibridisasi somatik antara sel limfosit B dan sel mieloma untuk membentuk hibridoma penghasil antibodi"},
+        {key:"D", text:"Rekayasa genetika yang menyisipkan gen antigen patogen ke dalam vektor ekspresi untuk diproduksi massal"},
+        {key:"E", text:"Mutasi terarah menggunakan mutagen kimia pada kultur virus yang sudah dilemahkan sebelumnya"}
+      ],
+      correct:"D",
+      explanation:"Vaksin rekombinan dibuat dengan mengklonkan gen pengkode antigen permukaan patogen ke dalam vektor ekspresi, diekspresikan dalam inang (ragi, sel mamalia, bakteri) menghasilkan protein antigen murni yang aman dan efektif."
+    },
+
+    // ── 37 — kunci A ──
+    {
+      id:37, category:"Biologi — Bioteknologi", stimulus:"",
+      question:"Bioteknologi memberikan kontribusi besar dalam upaya pelestarian dan pemulihan lingkungan hidup. Salah satu manfaat nyata bioteknologi di bidang lingkungan adalah...",
+      options:[
+        {key:"A", text:"Bioremediasi yang memanfaatkan mikroorganisme untuk membersihkan tanah dan perairan tercemar polutan"},
+        {key:"B", text:"Produksi antibiotik penisilin untuk mengobati infeksi bakteri pada populasi manusia perkotaan"},
+        {key:"C", text:"Pembuatan vaksin hepatitis B untuk mencegah penyebaran virus di area endemis"},
+        {key:"D", text:"Produksi yoghurt dan keju probiotik sebagai alternatif pangan bergizi di daerah terpencil"},
+        {key:"E", text:"Produksi roti dan tape sebagai sumber karbohidrat untuk ketahanan pangan komunitas desa"}
+      ],
+      correct:"A",
+      explanation:"Bioremediasi adalah aplikasi bioteknologi terpenting untuk lingkungan, mencakup degradasi hidrokarbon minyak, pestisida organoklorin, logam berat, dan limbah industri menggunakan bakteri, jamur, atau alga yang dioptimasi."
+    },
+
+    // ── 38 — kunci C ──
+    {
+      id:38, category:"Biologi — Bioteknologi", stimulus:"",
+      question:"Bioteknologi memberikan terobosan besar dalam bidang pertanian untuk meningkatkan produktivitas dan ketahanan tanaman pangan. Contoh paling tepat penerapan bioteknologi modern di bidang pertanian adalah...",
+      options:[
+        {key:"A", text:"Produksi vaksin ternak menggunakan virus yang dilemahkan secara bertahap dengan pemanasan"},
+        {key:"B", text:"Pembuatan yoghurt kambing sebagai pangan probiotik khusus untuk hewan ternak peliharaan"},
+        {key:"C", text:"Pengembangan tanaman transgenik tahan hama dan herbisida seperti jagung Bt dan kapas Bt"},
+        {key:"D", text:"Produksi antibiotik penisilin untuk penyakit infeksi pada tanaman hias tropis"},
+        {key:"E", text:"Produksi insulin manusia rekombinan menggunakan bakteri E. coli termodifikasi"}
+      ],
+      correct:"C",
+      explanation:"Tanaman transgenik tahan hama (jagung Bt, kapas Bt) dan tahan herbisida (kedelai Roundup Ready) adalah contoh bioteknologi pertanian modern yang telah dikomersialkan secara luas di lebih dari 70 negara."
+    },
+
+    // ── 39 — kunci D ──
+    {
+      id:39, category:"Biologi — Bioteknologi", stimulus:"",
+      question:"Di balik berbagai manfaatnya, bioteknologi juga menyimpan risiko yang perlu diantisipasi dengan bijak. Dampak negatif yang paling sering diperdebatkan terkait organisme transgenik adalah...",
+      options:[
+        {key:"A", text:"Meningkatnya biaya produksi vaksin secara eksponensial karena proses rekayasa yang sangat kompleks"},
+        {key:"B", text:"Berkurangnya produksi antibiotik alami dari mikroorganisme tanah yang kehilangan habitat"},
+        {key:"C", text:"Menurunnya kualitas gizi produk fermentasi tradisional akibat kontaminasi gen asing"},
+        {key:"D", text:"Potensi aliran gen (gene flow) transgenik ke populasi liar yang dapat mengganggu keseimbangan ekosistem"},
+        {key:"E", text:"Meningkatnya konsumsi energi listrik secara masif pada proses kultur jaringan skala besar"}
+      ],
+      correct:"D",
+      explanation:"Gene flow dari tanaman transgenik ke kerabat liarnya melalui penyerbukan silang berpotensi menciptakan 'super-weed' tahan herbisida atau mengubah keseimbangan populasi organisme liar di ekosistem alami."
+    },
+
+    // ── 40 — kunci B ──
+    {
+      id:40, category:"Biologi — Bioteknologi",
+      stimulus:"Indonesia menghadapi dua masalah lingkungan besar: timbunan sampah plastik yang mencemari lautan dan limbah cair pabrik kertas yang kaya senyawa lignoselulosa dan bahan kimia pemutih.",
+      question:"Solusi bioteknologi yang paling tepat dan berkelanjutan untuk mengatasi kedua permasalahan tersebut secara terintegrasi adalah...",
+      options:[
+        {key:"A", text:"Membakar sampah plastik menggunakan reaktor plasma suhu tinggi untuk menghasilkan energi listrik"},
+        {key:"B", text:"Menggunakan bioplastik dari bakteri Alcaligenes eutrophus dan sistem lumpur aktif berisi mikroorganisme pengurai lignoselulosa"},
+        {key:"C", text:"Melarang penggunaan enzim selulase industri untuk memperlambat laju degradasi kertas di lingkungan"},
+        {key:"D", text:"Mengganti bahan baku plastik dengan karet alam yang dipanen dari hutan tropis secara konvensional"},
+        {key:"E", text:"Menyebarkan bakteri Thiobacillus di perairan untuk mengoksidasi senyawa organik limbah pabrik"}
+      ],
+      correct:"B",
+      explanation:"Solusi terintegrasi: bioplastik dari PHA bakteri Alcaligenes eutrophus menggantikan plastik sintetis (biodegradable), dikombinasikan sistem lumpur aktif—konsorsium mikroorganisme selulolitik—untuk mendegradasi limbah lignoselulosa pabrik kertas."
+    }
+
+  ];
+
+  // ── ENGINE ──
+  let currentQIndex = 0, score = 0, selectedAnswer = null, isAnswered = false;
+
+  const screens = {
+    start:  document.getElementById('screen-start'),
+    quiz:   document.getElementById('screen-quiz'),
+    result: document.getElementById('screen-result')
+  };
+
+  function showScreen(name) {
+    Object.values(screens).forEach(s => s.classList.add('hidden'));
+    screens[name].classList.remove('hidden');
+    window.scrollTo(0, 0);
+  }
+
+  function startQuiz() {
+    currentQIndex = 0; score = 0; selectedAnswer = null; isAnswered = false;
+    showScreen('quiz');
+    renderQuestion();
+  }
+
+  function renderQuestion() {
+    const q = questionsData[currentQIndex];
+    const pct = ((currentQIndex + 1) / questionsData.length) * 100;
+    document.getElementById('quiz-category').textContent = q.category;
+    document.getElementById('quiz-progress-text').textContent = `Soal ${currentQIndex + 1} / ${questionsData.length}`;
+    document.getElementById('quiz-progress-bar').style.width = pct + '%';
+
+    const sc = document.getElementById('stimulus-container');
+    if (q.stimulus && q.stimulus.trim()) {
+      sc.classList.remove('hidden');
+      document.getElementById('quiz-stimulus').textContent = q.stimulus;
+    } else { sc.classList.add('hidden'); }
+
+    document.getElementById('quiz-question').textContent = q.question;
+
+    const nb = document.getElementById('quiz-next-btn');
+    nb.innerHTML = currentQIndex === questionsData.length - 1
+      ? `Selesaikan Latihan <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>`
+      : `Soal Berikutnya <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>`;
+
+    renderOptions();
+    document.getElementById('quiz-feedback-container').classList.add('hidden');
+  }
+
+  function renderOptions() {
+    const q = questionsData[currentQIndex];
+    const container = document.getElementById('quiz-options');
+    container.innerHTML = '';
+    q.options.forEach(opt => {
+      const btn = document.createElement('button');
+      let bCls = "w-full text-left p-4 rounded-xl border border-slate-600 bg-slate-700/40 hover:bg-slate-600/60 transition duration-200 flex items-start gap-4";
+      let lCls = "flex-shrink-0 w-8 h-8 rounded-full bg-slate-600 text-white flex items-center justify-center font-bold text-sm";
+      if (!isAnswered) {
+        btn.onclick = () => selectOption(opt.key);
+      } else {
+        btn.disabled = true;
+        bCls = "w-full text-left p-4 rounded-xl border flex items-start gap-4 opacity-60";
+        if (opt.key === q.correct) {
+          bCls = "w-full text-left p-4 rounded-xl border border-emerald-500 bg-emerald-900/40 flex items-start gap-4";
+          lCls = "flex-shrink-0 w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-sm";
+        } else if (opt.key === selectedAnswer && selectedAnswer !== q.correct) {
+          bCls = "w-full text-left p-4 rounded-xl border border-rose-500 bg-rose-900/40 flex items-start gap-4";
+          lCls = "flex-shrink-0 w-8 h-8 rounded-full bg-rose-500 text-white flex items-center justify-center font-bold text-sm";
+        }
+      }
+      btn.className = bCls;
+      btn.innerHTML = `<span class="${lCls}">${opt.key}</span><span class="pt-1 text-slate-200">${opt.text}</span>`;
+      container.appendChild(btn);
+    });
+  }
+
+  function selectOption(key) {
+    if (isAnswered) return;
+    isAnswered = true; selectedAnswer = key;
+    const q = questionsData[currentQIndex];
+    const correct = key === q.correct;
+    if (correct) score++;
+    renderOptions();
+    showFeedback(correct, q.explanation);
+  }
+
+  function showFeedback(isCorrect, explanation) {
+    document.getElementById('quiz-feedback-container').classList.remove('hidden');
+    const box   = document.getElementById('quiz-feedback-box');
+    const icon  = document.getElementById('quiz-feedback-icon');
+    const title = document.getElementById('quiz-feedback-title');
+    if (isCorrect) {
+      box.className = "p-6 rounded-2xl border bg-emerald-900/30 border-emerald-500/50 text-emerald-100 mb-6";
+      icon.innerHTML = `<svg class="w-7 h-7 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`;
+      title.textContent = "Jawaban Kamu Tepat!";
+    } else {
+      box.className = "p-6 rounded-2xl border bg-rose-900/30 border-rose-500/50 text-rose-100 mb-6";
+      icon.innerHTML = `<svg class="w-7 h-7 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`;
+      title.textContent = "Jawaban Kamu Kurang Tepat";
+    }
+    document.getElementById('quiz-feedback-text').innerHTML = `<strong class="font-semibold">Pembahasan:</strong> ${explanation}`;
+  }
+
+  function handleNextQuestion() {
+    if (currentQIndex < questionsData.length - 1) {
+      currentQIndex++; selectedAnswer = null; isAnswered = false;
+      renderQuestion();
+    } else { showResultScreen(); }
+  }
+
+  function showResultScreen() {
+    const total = questionsData.length;
+    const finalScore = Math.round((score / total) * 100);
+    document.getElementById('result-score').textContent = finalScore;
+    document.getElementById('result-correct').textContent = score;
+    document.getElementById('result-total').textContent = total;
+    document.getElementById('result-circle').setAttribute('stroke-dasharray', `${finalScore}, 100`);
+    document.getElementById('result-message').textContent =
+      finalScore >= 80 ? "Luar biasa! Pemahaman Bioteknologi-mu sangat mantap. 🧬"
+      : finalScore >= 60 ? "Kerja bagus! Sedikit lagi menguasai materi Bioteknologi ini. 💪"
+      : "Terus semangat belajar! Yuk pelajari lagi materi Bioteknologi dari awal. 📚";
+    showScreen('result');
+  }
+
+  function goHome() { showScreen('start'); }
+  </script>
+</body>
+</html>
